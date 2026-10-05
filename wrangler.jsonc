@@ -1,13 +1,13 @@
 {
   "name": "strava-webhook",
-  "main": "src/worker.js",
+  "main": "src/worker.ts",
   "workers_dev": true,
   "preview_urls": false,
   "compatibility_date": "2026-09-08",
   "observability": {
     "enabled": false,
     "head_sampling_rate": 1,
-    "redact_query_string": false,
+    "redact_query_string": true,
     "logs": {
       "enabled": true,
       "head_sampling_rate": 1,
@@ -23,12 +23,32 @@
   "vars": {
     "STRAVA_CLIENT_ID": "45981",
     "STRAVA_SUBSCRIPTION_ID": "371824",
-    "ZAPIER_HOOK_URL": "https://hooks.zapier.com/hooks/catch/28787969/4h7hwss/"
+    "GOOGLE_CLIENT_ID": "986166371376-sspvkl0cvu3lc5urk7fkkqatvkn2kq2a.apps.googleusercontent.com",
+    "GOOGLE_CALENDAR_ID": "0697fbe8fbe3c72712361565b84be634e995996400f12add5633c0b5d06fedfb@group.calendar.google.com",
+    "GOOGLE_REDIRECT_URI": "https://strava-webhook.dbwalker0min.workers.dev/oauth/google/callback"
   },
   "kv_namespaces": [
     {
       "id": "7b9cce50c2ee42c78f9e82a86efdeb66",
       "binding": "STRAVA_TOKENS"
     }
-  ]
+  ],
+  "queues": {
+    "producers": [
+      {
+        "binding": "ACTIVITY_QUEUE",
+        "queue": "strava-calendar-activities"
+      }
+    ],
+    "consumers": [
+      {
+        "queue": "strava-calendar-activities",
+        "max_batch_size": 1,
+        "max_batch_timeout": 1,
+        "max_concurrency": 1,
+        "max_retries": 10,
+        "dead_letter_queue": "strava-calendar-failed"
+      }
+    ]
+  }
 }
